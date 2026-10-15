@@ -1,26 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""VII. Cài đặt thuật toán K-means bằng Python
-
-    1. Đọc dữ liệu
-    2. Lựa chọn thuộc tính
-    3. Đánh giá số cụm bằng Elbow Method và Silhouette
-    4. Huấn luyện mô hình
-    5. Chạy thử, tính SSE, Silhouette trung bình và từng khách hàng
-
-Chạy:  python3 kmeans_hoan_chinh.py
-Cần:   python3 -m pip install numpy pandas matplotlib scikit-learn
-
-Đầu vào là CSV đã xử lý. Chương trình không tự chuẩn hóa dữ liệu.
-Silhouette dùng khoảng cách Euclid giữa các điểm, không dùng khoảng cách
-đến tâm cụm. Tính bằng sklearn.metrics trên toàn bộ dữ liệu, không lấy mẫu
-ngẫu nhiên. Thuật toán K-means được viết trực tiếp bằng NumPy.
-"""
 
 from pathlib import Path
 
 import matplotlib
-matplotlib.use("Agg")  # chỉ lưu ảnh, không cần cửa sổ đồ họa
+matplotlib.use("Agg") 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -29,10 +11,6 @@ from sklearn.metrics import silhouette_score, silhouette_samples
 CSV_MAC_DINH = "khach_hang_train70.csv"
 THU_MUC_KET_QUA = Path("ket_qua_kmeans")
 
-
-# ----------------------------------------------------------------------
-# Hàm nhập liệu tiện ích
-# ----------------------------------------------------------------------
 def nhap_so_nguyen(thong_bao, toi_thieu, mac_dinh=None):
     while True:
         s = input(thong_bao).strip()
@@ -47,9 +25,8 @@ def nhap_so_nguyen(thong_bao, toi_thieu, mac_dinh=None):
         print(f"  Vui lòng nhập số nguyên >= {toi_thieu}.")
 
 
-# ----------------------------------------------------------------------
+
 # 1. Đọc dữ liệu
-# ----------------------------------------------------------------------
 def doc_du_lieu():
     print("=== 1. ĐỌC DỮ LIỆU ===")
     duong_dan = input(f"Đường dẫn file CSV (Enter = '{CSV_MAC_DINH}'): ").strip()
@@ -66,9 +43,7 @@ def doc_du_lieu():
     return du_lieu
 
 
-# ----------------------------------------------------------------------
 # 2. Lựa chọn thuộc tính
-# ----------------------------------------------------------------------
 def chon_thuoc_tinh(du_lieu):
     print("\n=== 2. LỰA CHỌN THUỘC TÍNH ===")
     cot_so = [c for c in du_lieu.columns
@@ -102,9 +77,8 @@ def chon_thuoc_tinh(du_lieu):
     return da_chon, X
 
 
-# ----------------------------------------------------------------------
 # Thuật toán K-means (viết trực tiếp)
-# ----------------------------------------------------------------------
+
 def khoang_cach(X, tam):
     """Ma trận khoảng cách Euclid, kích thước n x K."""
     return np.sqrt(((X[:, None, :] - tam[None, :, :]) ** 2).sum(axis=2))
@@ -142,17 +116,10 @@ def kmeans(X, k, max_iter, seed):
             "sse": sse, "so_vong": so_vong}
 
 
-# ----------------------------------------------------------------------
-# Silhouette bằng scikit-learn
-# ----------------------------------------------------------------------
-def tinh_silhouette(X, nhan, tinh_tung_diem=True):
-    """Tính Silhouette trung bình và, nếu cần, điểm từng khách hàng.
 
-    silhouette_score: điểm trung bình toàn bộ dữ liệu để so sánh K.
-    silhouette_samples: điểm từng khách hàng theo đúng thứ tự dòng của X.
-    Chỉ xác định khi có từ 2 đến N-1 cụm có dữ liệu.
-    Dùng chính X và nhãn do K-means tạo ra, với khoảng cách Euclid.
-    """
+# Silhouette bằng scikit-learn
+
+def tinh_silhouette(X, nhan, tinh_tung_diem=True):
     X = np.asarray(X, dtype=float)
     nhan = np.asarray(nhan)
     if X.ndim != 2 or X.shape[1] == 0 or not np.isfinite(X).all():
@@ -171,9 +138,7 @@ def tinh_silhouette(X, nhan, tinh_tung_diem=True):
     return {"trung_binh": trung_binh, "tung_diem": tung_diem, "ly_do": None}
 
 
-# ----------------------------------------------------------------------
 # 3. Đánh giá số cụm bằng Elbow Method và Silhouette
-# ----------------------------------------------------------------------
 def goi_y_khuyu_tay(ks, sse):
     """Điểm 'khuỷu tay': điểm xa nhất so với đoạn thẳng nối đầu - cuối đường SSE."""
     if len(ks) < 3 or sse[0] == sse[-1]:
@@ -257,9 +222,7 @@ def elbow(X, max_iter, so_lan_chay=10):
     return k_goi_y
 
 
-# ----------------------------------------------------------------------
 # 4. Huấn luyện mô hình
-# ----------------------------------------------------------------------
 def huan_luyen(X, k_goi_y):
     print("\n=== 4. HUẤN LUYỆN MÔ HÌNH ===")
     k = nhap_so_nguyen(f"Nhập số cụm K (Enter = {k_goi_y}): ", 1, mac_dinh=k_goi_y)
@@ -274,9 +237,7 @@ def huan_luyen(X, k_goi_y):
     return ket_qua
 
 
-# ----------------------------------------------------------------------
 # 5. Chạy thử: hiển thị và lưu kết quả
-# ----------------------------------------------------------------------
 def chay_thu(du_lieu, ten_cot, X, kq):
     print("\n=== 5. CHẠY THỬ ===")
     k, nhan = kq["k"], kq["nhan"]
